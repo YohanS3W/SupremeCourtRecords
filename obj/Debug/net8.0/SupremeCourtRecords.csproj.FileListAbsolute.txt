@@ -276,3 +276,11 @@ C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\obj\Debug\net8.0\
 C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\obj\Debug\net8.0\SupremeCourtRecords.pdb
 C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\obj\Debug\net8.0\SupremeCourtRecords.genruntimeconfig.cache
 C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\obj\Debug\net8.0\ref\SupremeCourtRecords.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\obj\Debug\net8.0\SupremeCourtRecords.sourcelink.json
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\MailKit.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\MimeKit.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\DELL\Desktop\BACKEND COURSEWORK\1\SupremeCourtRecords\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

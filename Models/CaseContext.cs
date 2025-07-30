@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace SupremeCourtRecords.Models
 {
-    public class CaseContext : DbContext
+    public class CaseContext : IdentityDbContext<IdentityUser>
     {
         public CaseContext(DbContextOptions<CaseContext> options) : base(options)
         {
