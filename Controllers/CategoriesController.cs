@@ -13,95 +13,142 @@ namespace SupremeCourtRecords.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly CaseContext _context;
+        private readonly ICategoryService _categoryService;
+        private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(CaseContext context)
+        public CategoriesController(ICategoryService categoryService, ILogger<CategoriesController> logger)
         {
-            _context = context;
+            _categoryService = categoryService;
+            _logger = logger;
         }
 
         // GET: api/Categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            try
+            {
+                _logger.LogInformation("Fetching all categories.");
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                if (categories == null || !categories.Any())
+                {
+                    _logger.LogWarning("No categories found.");
+                    return NotFound("No categories found.");
+                }
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching categories.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-
-            if (category == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Fetching category with ID {id}");
+                var category = await _categoryService.GetCategoryByIdAsync(id);
 
-            return category;
+                if (category == null)
+                {
+                    _logger.LogWarning($"Category with ID {id} not found.");
+                    return NotFound($"Category with ID {id} not found.");
+                }
+
+                return Ok(category);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching the category.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // PUT: api/Categories/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != category.CategoryId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(category).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                if (id != category.CategoryId)
+                {
+                    _logger.LogWarning("Category ID mismatch.");
+                    return BadRequest("Category ID mismatch.");
+                }
+
+                await _categoryService.UpdateCategoryAsync(id, category);
+                _logger.LogInformation($"Category with ID {id} updated.");
+                return NoContent();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (await _categoryService.GetCategoryByIdAsync(id) == null)
                 {
-                    return NotFound();
+                    _logger.LogWarning($"Category with ID {id} not found for update.");
+                    return NotFound($"Category with ID {id} not found.");
                 }
                 else
                 {
+                    _logger.LogError("Error updating category.");
                     throw;
                 }
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the category.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // POST: api/Categories
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (category == null)
+                {
+                    _logger.LogWarning("Received empty category object.");
+                    return BadRequest("Category data cannot be null.");
+                }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+                await _categoryService.AddCategoryAsync(category);
+                _logger.LogInformation($"Category with ID {category.CategoryId} created.");
+                return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the category.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            try
             {
-                return NotFound();
+                var category = await _categoryService.GetCategoryByIdAsync(id);
+                if (category == null)
+                {
+                    _logger.LogWarning($"Category with ID {id} not found.");
+                    return NotFound($"Category with ID {id} not found.");
+                }
+
+                await _categoryService.DeleteCategoryAsync(id);
+                _logger.LogInformation($"Category with ID {id} deleted.");
+                return NoContent();
             }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the category.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
     }
 }

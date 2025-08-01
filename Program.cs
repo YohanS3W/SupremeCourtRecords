@@ -18,6 +18,12 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<EmailService>();
 
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IJudgeService, JudgeService>();
+builder.Services.AddScoped<IPetitionerService, PetitionerService>();
+builder.Services.AddScoped<IRespondentService, RespondentService>();
+builder.Services.AddScoped<ICaseService, CaseService>();
+
 builder.Services.AddScoped<RolesController>();
 
             builder.Services.AddAuthentication(options =>
