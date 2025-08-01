@@ -13,95 +13,142 @@ namespace SupremeCourtRecords.Controllers
     [ApiController]
     public class RespondentsController : ControllerBase
     {
-        private readonly CaseContext _context;
+        private readonly IRespondentService _respondentService;
+        private readonly ILogger<RespondentsController> _logger;
 
-        public RespondentsController(CaseContext context)
+        public RespondentsController(IRespondentService respondentService, ILogger<RespondentsController> logger)
         {
-            _context = context;
+            _respondentService = respondentService;
+            _logger = logger;
         }
 
         // GET: api/Respondents
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Respondent>>> GetRespondents()
         {
-            return await _context.Respondents.ToListAsync();
+            try
+            {
+                _logger.LogInformation("Fetching all respondents.");
+                var respondents = await _respondentService.GetAllRespondentsAsync();
+                if (respondents == null || !respondents.Any())
+                {
+                    _logger.LogWarning("No respondents found.");
+                    return NotFound("No respondents found.");
+                }
+                return Ok(respondents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching students.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // GET: api/Respondents/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Respondent>> GetRespondent(int id)
         {
-            var respondent = await _context.Respondents.FindAsync(id);
-
-            if (respondent == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Fetching respondent with ID {id}");
+                var respondent = await _respondentService.GetRespondentByIdAsync(id);
 
-            return respondent;
+                if (respondent == null)
+                {
+                    _logger.LogWarning($"Respondent with ID {id} not found.");
+                    return NotFound($"Respondent with ID {id} not found.");
+                }
+
+                return Ok(respondent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching the respondent.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // PUT: api/Respondents/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRespondent(int id, Respondent respondent)
         {
-            if (id != respondent.RespondentId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(respondent).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                if (id != respondent.RespondentId)
+                {
+                    _logger.LogWarning("Respondent ID mismatch.");
+                    return BadRequest("Respondent ID mismatch.");
+                }
+
+                await _respondentService.UpdateRespondentAsync(id, respondent);
+                _logger.LogInformation($"Respondent with ID {id} updated.");
+                return NoContent();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RespondentExists(id))
+                if (await _respondentService.GetRespondentByIdAsync(id) == null)
                 {
-                    return NotFound();
+                    _logger.LogWarning($"Respondent with ID {id} not found for update.");
+                    return NotFound($"Respondent with ID {id} not found.");
                 }
                 else
                 {
+                    _logger.LogError("Error updating respondent.");
                     throw;
                 }
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the respondent.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
-        // POST: api/Respondents
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Respondent
         [HttpPost]
         public async Task<ActionResult<Respondent>> PostRespondent(Respondent respondent)
         {
-            _context.Respondents.Add(respondent);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (respondent == null)
+                {
+                    _logger.LogWarning("Received empty respondent object.");
+                    return BadRequest("Respondent data cannot be null.");
+                }
 
-            return CreatedAtAction("GetRespondent", new { id = respondent.RespondentId }, respondent);
+                await _respondentService.AddRespondentAsync(respondent);
+                _logger.LogInformation($"Respondent with ID {respondent.RespondentId} created.");
+                return CreatedAtAction("GetRespondent", new { id = respondent.RespondentId }, respondent);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the respondent.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         // DELETE: api/Respondents/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRespondent(int id)
         {
-            var respondent = await _context.Respondents.FindAsync(id);
-            if (respondent == null)
+            try
             {
-                return NotFound();
+                var respondent = await _respondentService.GetRespondentByIdAsync(id);
+                if (respondent == null)
+                {
+                    _logger.LogWarning($"Respondent with ID {id} not found.");
+                    return NotFound($"Respondent with ID {id} not found.");
+                }
+
+                await _respondentService.DeleteRespondentAsync(id);
+                _logger.LogInformation($"Respondent with ID {id} deleted.");
+                return NoContent();
             }
-
-            _context.Respondents.Remove(respondent);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool RespondentExists(int id)
-        {
-            return _context.Respondents.Any(e => e.RespondentId == id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the respondent.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
     }
 }

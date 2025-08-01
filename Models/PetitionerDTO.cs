@@ -1,18 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 namespace SupremeCourtRecords.Models
 {
-    public class Petitioner
+    public class PetitionerDTO
     {
         public int PetitionerId { get; set; }
-
+        
         [Required]
         [StringLength(100, MinimumLength = 3)]
         public string? Name { get; set; }
-        
-        [JsonIgnore]
-        public List<Case>? Cases { get; set; }
     }
 }

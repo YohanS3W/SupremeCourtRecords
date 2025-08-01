@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 namespace SupremeCourtRecords.Models
 {
-    public class Case
+    public class CaseDTO
     {
         public int CaseId { get; set; }
 
@@ -19,17 +17,5 @@ namespace SupremeCourtRecords.Models
 
         [Required]
         public int JudgeId { get; set; }
-
-        [JsonIgnore]
-        public Category? Category { get; set; }
-
-        [JsonIgnore]
-        public Petitioner? Petitioner { get; set; }
-
-        [JsonIgnore]
-        public Respondent? Respondent { get; set; }
-
-        [JsonIgnore]
-        public Judge? Judge { get; set; }
     }
 }

@@ -1,18 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 namespace SupremeCourtRecords.Models
 {
-    public class Category
+    public class CategoryDTO
     {
         public int CategoryId { get; set; }
-
+        
         [Required]
         [StringLength(100, MinimumLength = 5)]
         public string? Name { get; set; }
-        
-        [JsonIgnore]
-        public List<Case>? Cases { get; set; }
     }
 }
